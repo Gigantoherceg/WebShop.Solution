@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebShop.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using Services;
+using Services.Models;
 
 namespace WebShop.Controllers
 {
@@ -13,95 +8,67 @@ namespace WebShop.Controllers
     [ApiController]
     public class CartsController : ControllerBase
     {
-        private readonly WebShopDbContext _context;
+        private readonly CartServices _cartServices;
 
-        public CartsController(WebShopDbContext context)
+        public CartsController(CartServices cartServices)
         {
-            _context = context;
+            _cartServices = cartServices;
         }
 
         // GET: api/Carts
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Cart>>> GetCarts()
         {
-            return await _context.Carts.ToListAsync();
+            return await _cartServices.GetCartsAsync();
         }
 
         // GET: api/Carts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cart>> GetCart(int id)
+        public async Task<ActionResult<Cart?>> GetCart(int id)
         {
-            var cart = await _context.Carts.FindAsync(id);
-
-            if (cart == null)
-            {
-                return NotFound();
-            }
-
-            return cart;
+            Cart? cart = await _cartServices.GetCartByIdAsync(id);
+            return cart is not null ? cart : NotFound();
         }
 
-        // PUT: api/Carts/5
+        // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCart(int id, Cart cart)
         {
-            if (id != cart.Id)
+            if (GetCart(id) is not null)
             {
-                return BadRequest();
-            }
+                await _cartServices.UpdateCartAsync(cart);
 
-            _context.Entry(cart).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CartExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return NotFound();
         }
 
-        // POST: api/Carts
+        // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Cart>> PostCart(Cart cart)
+        public async Task<ActionResult<Cart>> PostProduct(Cart cart)
         {
-            _context.Carts.Add(cart);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCart", new { id = cart.Id }, cart);
+            var cartAdd = await _cartServices.AddCartAsync(cart);
+            return CreatedAtAction("GetCart", new { id = cartAdd.Id }, cartAdd);
         }
 
-        // DELETE: api/Carts/5
+        // DELETE: api/Products/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCart(int id)
+        public async Task<IActionResult> Deletecart(int id)
         {
-            var cart = await _context.Carts.FindAsync(id);
+            var cart = await _cartServices.GetCartByIdAsync(id);
             if (cart == null)
             {
                 return NotFound();
             }
 
-            _context.Carts.Remove(cart);
-            await _context.SaveChangesAsync();
-
+            await _cartServices.DeleteCartAsync(cart);
             return NoContent();
         }
 
         private bool CartExists(int id)
         {
-            return _context.Carts.Any(e => e.Id == id);
+            return _cartServices.GetCartByIdAsync(id) is null ? false : true;
         }
     }
 }
