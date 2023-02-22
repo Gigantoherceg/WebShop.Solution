@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-    public class CustomerServices
+    public class CustomerServices : ICustomerServices
     {
         private readonly WebShopDbContext _webShopDbContext;
 

@@ -8,9 +8,9 @@ namespace WebShop.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private readonly CustomerServices _customerServices;
+        private readonly ICustomerServices _customerServices;
 
-        public CustomersController(CustomerServices customerServices)
+        public CustomersController(ICustomerServices customerServices)
         {
             _customerServices = customerServices;
         }

@@ -8,9 +8,9 @@ namespace WebShop.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly OrderServices _orderService;
+        private readonly IOrderServices _orderService;
 
-        public OrdersController(OrderServices orderService)
+        public OrdersController(IOrderServices orderService)
         {
             _orderService = orderService;
         }
@@ -35,9 +35,10 @@ namespace WebShop.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrder(int id, Order order)
         {
-            if (GetOrder(id) is not null)
+            if (await _orderService.GetOrderByIdAsync(id) is not null)
             {
                 await _orderService.UpdateOrderAsync(order);
+                return Ok(order);
             }
             return NotFound();
         }

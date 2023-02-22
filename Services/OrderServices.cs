@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-    public class OrderServices
+    public class OrderServices : IOrderServices
     {
         private readonly WebShopDbContext _webShopDbContext;
 
@@ -26,14 +26,18 @@ namespace Services
         //GET id alapján
         public async Task<Order?> GetOrderByIdAsync(int id)
         {
-            return await _webShopDbContext.Orders.FindAsync(id);
+            var order = await _webShopDbContext.Orders.FindAsync(id);
+            if (order is not null)
+            {
+                _webShopDbContext.Entry(order).State = EntityState.Detached;
+            }
+            return order;
         }
 
         //PUT => Update id alapján
         public async Task UpdateOrderAsync(Order order)
         {
-            _webShopDbContext.Entry(order).State = EntityState.Modified;
-
+            _webShopDbContext.Orders.Update(order);
             await _webShopDbContext.SaveChangesAsync();
         }
 

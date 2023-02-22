@@ -8,9 +8,9 @@ namespace WebShop.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ProductServices _productService;
+        private readonly IProductServices _productService;
 
-        public ProductsController(ProductServices productService)
+        public ProductsController(IProductServices productService)
         {
             _productService = productService;
         }
@@ -35,10 +35,10 @@ namespace WebShop.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduct(int id, Product product)
         {
-            if (GetProduct(id) is not null)
+            if (await _productService.GetProductByIdAsync(id) is not null)
             {
                 await _productService.UpdateProductAsync(product);
-
+                return Ok(product);
             }
             return NotFound();
         }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-    public class CartServices
+    public class CartServices : ICartServices
     {
         private readonly WebShopDbContext _webShopDbContext;
 
@@ -31,8 +31,7 @@ namespace Services
         //PUT => Update id alapján
         public async Task UpdateCartAsync(Cart cart)
         {
-            _webShopDbContext.Entry(cart).State = EntityState.Modified;
-
+            _webShopDbContext.Carts.Update(cart);
             await _webShopDbContext.SaveChangesAsync();
         }
 

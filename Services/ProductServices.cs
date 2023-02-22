@@ -3,7 +3,7 @@ using Services.Models;
 
 namespace Services
 {
-    public class ProductServices
+    public class ProductServices : IProductServices
     {
         private readonly WebShopDbContext _context;
 
@@ -20,14 +20,18 @@ namespace Services
         //GET id alapján
         public async Task<Product?> GetProductByIdAsync(int id)
         {
-            return await _context.Products.FindAsync(id);
+            var product = await _context.Products.FindAsync(id);
+            if (product is not null)
+            {
+                _context.Entry(product).State = EntityState.Detached;
+            }
+            return product;
         }
 
         //PUT => Update id alapján
         public async Task UpdateProductAsync(Product product)
         {
-            _context.Entry(product).State = EntityState.Modified;
-
+            _context.Products.Update(product);
             await _context.SaveChangesAsync();
         }
 

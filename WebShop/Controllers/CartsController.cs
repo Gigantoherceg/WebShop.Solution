@@ -8,9 +8,9 @@ namespace WebShop.Controllers
     [ApiController]
     public class CartsController : ControllerBase
     {
-        private readonly CartServices _cartServices;
+        private readonly ICartServices _cartServices;
 
-        public CartsController(CartServices cartServices)
+        public CartsController(ICartServices cartServices)
         {
             _cartServices = cartServices;
         }
@@ -35,10 +35,10 @@ namespace WebShop.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCart(int id, Cart cart)
         {
-            if (GetCart(id) is not null)
+            if (await _cartServices.GetCartByIdAsync(id) is not null)
             {
                 await _cartServices.UpdateCartAsync(cart);
-
+                return Ok(cart);
             }
             return NotFound();
         }
