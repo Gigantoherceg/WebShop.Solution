@@ -36,12 +36,24 @@ namespace Services
         }
 
         //POST => ADD
-        public async Task<Cart> AddCartAsync(Cart cart)
+        public async Task<Cart> AddCartAsync(CartView cart)
         {
-            _webShopDbContext.Carts.Add(cart);
+            var customer = _webShopDbContext.Customers.Find(cart.CustomerId);
+            List<Product> products = new List<Product>();
+
+            foreach (var item in cart.ProductsId)
+            {
+                products.Add(_webShopDbContext.Products.Find(item));
+            }
+            var cartToAdd = new Cart()
+            {
+                Products = products,
+                Customer = customer
+            };
+            _webShopDbContext.Carts.Add(cartToAdd);
             await _webShopDbContext.SaveChangesAsync();
 
-            return cart;
+            return cartToAdd;
         }
 
         //DELETE

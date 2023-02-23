@@ -4,7 +4,7 @@ namespace Services
 {
     public interface ICartServices
     {
-        Task<Cart> AddCartAsync(Cart cart);
+        Task<Cart> AddCartAsync(CartView cart);
         Task DeleteCartAsync(Cart cart);
         Task<Cart?> GetCartByIdAsync(int id);
         Task<List<Cart>> GetCartsAsync();
